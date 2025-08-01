@@ -2,6 +2,39 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     
+    // iOS Safari Detection
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    
+    // iOS Safari Specific Fixes
+    if (isIOS) {
+        // Fix for iOS Safari viewport issues
+        const viewport = document.querySelector('meta[name=viewport]');
+        if (viewport) {
+            viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no');
+        }
+        
+        // Fix for iOS Safari 100vh issue
+        const setVH = () => {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        };
+        
+        setVH();
+        window.addEventListener('resize', setVH);
+        window.addEventListener('orientationchange', setVH);
+        
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+    }
+    
     // Smooth scrolling per i link interni
     const internalLinks = document.querySelectorAll('a[href^="#"]');
     internalLinks.forEach(link => {
@@ -56,9 +89,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (scrollTop > 100) {
             navbar.style.background = 'rgba(255, 255, 255, 0.95)';
             navbar.style.backdropFilter = 'blur(10px)';
+            navbar.style.webkitBackdropFilter = 'blur(10px)';
         } else {
             navbar.style.background = 'var(--bg-light)';
             navbar.style.backdropFilter = 'none';
+            navbar.style.webkitBackdropFilter = 'none';
         }
         
         lastScrollTop = scrollTop;
@@ -129,7 +164,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const body = document.body;
     
     if (mobileMenuToggle && mobileMenu) {
-        mobileMenuToggle.addEventListener('click', function() {
+        mobileMenuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
             this.classList.toggle('active');
             mobileMenu.classList.toggle('active');
             
@@ -137,9 +175,21 @@ document.addEventListener('DOMContentLoaded', function() {
             if (mobileMenu.classList.contains('active')) {
                 mobileMenu.style.display = 'block';
                 body.style.overflow = 'hidden'; // Previene lo scroll del body
+                
+                // iOS Safari specific fix
+                if (isIOS) {
+                    body.style.position = 'fixed';
+                    body.style.width = '100%';
+                }
             } else {
                 mobileMenu.style.display = 'none';
                 body.style.overflow = ''; // Ripristina lo scroll
+                
+                // iOS Safari specific fix
+                if (isIOS) {
+                    body.style.position = '';
+                    body.style.width = '';
+                }
             }
         });
         
@@ -151,6 +201,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileMenu.classList.remove('active');
                 mobileMenu.style.display = 'none';
                 body.style.overflow = '';
+                
+                // iOS Safari specific fix
+                if (isIOS) {
+                    body.style.position = '';
+                    body.style.width = '';
+                }
             });
         });
         
@@ -161,6 +217,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileMenu.classList.remove('active');
                 mobileMenu.style.display = 'none';
                 body.style.overflow = '';
+                
+                // iOS Safari specific fix
+                if (isIOS) {
+                    body.style.position = '';
+                    body.style.width = '';
+                }
+            }
+        });
+        
+        // Chiudi il menu quando si tocca fuori
+        document.addEventListener('click', function(e) {
+            if (!mobileMenuToggle.contains(e.target) && !mobileMenu.contains(e.target)) {
+                mobileMenuToggle.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                mobileMenu.style.display = 'none';
+                body.style.overflow = '';
+                
+                // iOS Safari specific fix
+                if (isIOS) {
+                    body.style.position = '';
+                    body.style.width = '';
+                }
             }
         });
     }
@@ -185,6 +263,17 @@ document.addEventListener('DOMContentLoaded', function() {
         link.addEventListener('mouseleave', function() {
             this.style.transform = 'scale(1)';
         });
+        
+        // iOS Safari touch events
+        if (isIOS) {
+            link.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(1.1)';
+            });
+            
+            link.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        }
     });
 
     // Counter animation per le statistiche (se aggiunte in futuro)
@@ -228,6 +317,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 500);
         }
     });
+
+    // iOS Safari specific fixes
+    if (isIOS) {
+        // Fix for iOS Safari input zoom
+        const inputs = document.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                if (this.type !== 'file') {
+                    this.style.fontSize = '16px';
+                }
+            });
+        });
+        
+        // Fix for iOS Safari scroll momentum
+        const scrollableElements = document.querySelectorAll('.mobile-menu, .reviews-container, .users-container');
+        scrollableElements.forEach(element => {
+            element.style.webkitOverflowScrolling = 'touch';
+        });
+    }
 
 });
 

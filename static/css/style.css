@@ -14,20 +14,37 @@
   --text-muted: #9ca3af;
   --bg-primary: #ffffff;
   --bg-secondary: #f9fafb;
+  --safe-area-top: env(safe-area-inset-top);
+  --safe-area-bottom: env(safe-area-inset-bottom);
+  --safe-area-left: env(safe-area-inset-left);
+  --safe-area-right: env(safe-area-inset-right);
+  --vh: 1vh;
 }
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.6;
   color: var(--text-dark);
   background-color: var(--bg-light);
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding-top: var(--safe-area-top);
+  padding-bottom: var(--safe-area-bottom);
+  padding-left: var(--safe-area-left);
+  padding-right: var(--safe-area-right);
 }
 
 /* Layout e Container */
@@ -56,6 +73,8 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 1rem;
+  -webkit-font-feature-settings: "liga" 1, "kern" 1;
+  font-feature-settings: "liga" 1, "kern" 1;
 }
 
 h1 { font-size: 3rem; }
@@ -73,8 +92,13 @@ p {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   width: 100%;
   z-index: 1000;
+  padding-top: var(--safe-area-top);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .nav-container {
@@ -95,6 +119,7 @@ p {
   color: var(--text-dark);
   font-weight: 500;
   transition: color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .nav-links a:hover {
@@ -107,6 +132,8 @@ p {
   flex-direction: column;
   cursor: pointer;
   padding: 0.5rem;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .mobile-menu-toggle span {
@@ -115,6 +142,7 @@ p {
   background: var(--text-dark);
   margin: 3px 0;
   transition: 0.3s;
+  border-radius: 2px;
 }
 
 .mobile-menu {
@@ -124,6 +152,12 @@ p {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   transform: translateY(-100%);
   transition: transform 0.3s ease;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 999;
 }
 
 .mobile-menu.active {
@@ -151,6 +185,8 @@ p {
   color: var(--text-dark);
   font-weight: 500;
   transition: background-color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .mobile-nav-links a:hover {
@@ -174,16 +210,19 @@ p {
 /* Hero Section */
 .hero {
   min-height: 100vh;
+  min-height: calc(var(--vh, 1vh) * 100);
   display: flex;
   align-items: center;
   background: linear-gradient(135deg, var(--bg-light) 0%, var(--bg-dark) 100%);
-  padding-top: 80px;
+  padding-top: calc(80px + var(--safe-area-top));
+  position: relative;
 }
 
 .hero-content {
   text-align: center;
   max-width: 800px;
   margin: 0 auto;
+  padding: 0 1rem;
 }
 
 .hero h1 {
@@ -193,6 +232,8 @@ p {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Buttons */
@@ -206,6 +247,13 @@ p {
   border: none;
   cursor: pointer;
   font-size: 1rem;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  min-height: 44px;
+  min-width: 44px;
 }
 
 .btn-primary {
@@ -232,6 +280,7 @@ p {
 .btn-sm {
   padding: 8px 16px;
   font-size: 0.9rem;
+  min-height: 36px;
 }
 
 /* Cards (per progetti) */
@@ -241,6 +290,8 @@ p {
   padding: 2rem;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 
 .card:hover {
@@ -301,12 +352,19 @@ p {
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: var(--bg-light);
+  color: var(--text-dark);
+  min-height: 44px;
 }
 
 .form-group input:focus,
 .form-group textarea:focus {
   outline: none;
   border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
 /* Footer */
@@ -316,6 +374,7 @@ p {
   text-align: center;
   padding: 2rem 0;
   margin-top: 4rem;
+  padding-bottom: calc(2rem + var(--safe-area-bottom));
 }
 
 .social-links {
@@ -329,6 +388,13 @@ p {
   color: white;
   font-size: 1.5rem;
   transition: color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .social-links a:hover {
@@ -1080,6 +1146,223 @@ p {
 .status.primary {
   background: var(--primary-color);
   color: white;
+}
+
+/* ===== iOS SPECIFIC FIXES ===== */
+
+/* iPhone Safe Area Support */
+@supports (padding: max(0px)) {
+  .navbar {
+    padding-top: max(var(--safe-area-top), 0px);
+  }
+  
+  .hero {
+    padding-top: max(calc(80px + var(--safe-area-top)), 80px);
+  }
+  
+  .footer {
+    padding-bottom: max(calc(2rem + var(--safe-area-bottom)), 2rem);
+  }
+}
+
+/* iOS Safari Specific Fixes */
+@supports (-webkit-touch-callout: none) {
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .mobile-menu {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .btn, .mobile-nav-links a, .social-links a {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+}
+
+/* iPhone 16 Pro Specific (430px width) */
+@media screen and (max-width: 430px) and (-webkit-min-device-pixel-ratio: 3) {
+  .container {
+    padding: 0 16px;
+  }
+  
+  .hero h1 {
+    font-size: 2rem;
+    line-height: 1.1;
+  }
+  
+  .hero-content {
+    padding: 0 0.5rem;
+  }
+  
+  .btn {
+    padding: 14px 20px;
+    font-size: 1rem;
+    min-height: 48px;
+  }
+  
+  .card {
+    padding: 1.25rem;
+  }
+  
+  .project-image {
+    height: 120px;
+    margin: -1.25rem -1.25rem 1rem -1.25rem;
+  }
+  
+  .mobile-nav-links a {
+    padding: 1.25rem 2rem;
+    font-size: 1.1rem;
+  }
+  
+  .contact-icon {
+    width: 45px;
+    height: 45px;
+    font-size: 1.1rem;
+  }
+  
+  .social-link {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .review-form-container {
+    padding: 1.25rem;
+  }
+  
+  .review-card {
+    padding: 1.25rem;
+  }
+  
+  .star-rating label {
+    font-size: 1.75rem;
+  }
+  
+  .stars i {
+    font-size: 1rem;
+  }
+}
+
+/* iPhone Landscape Issues */
+@media screen and (max-width: 926px) and (orientation: landscape) {
+  .hero {
+    min-height: 60vh;
+    padding-top: calc(60px + var(--safe-area-top));
+  }
+  
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+  
+  .section {
+    padding: 40px 0;
+  }
+  
+  .mobile-menu {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+}
+
+/* iOS Safari Viewport Fixes */
+@supports (-webkit-touch-callout: none) {
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100vw;
+  }
+  
+  .mobile-menu {
+    width: 100vw;
+    left: 0;
+    right: 0;
+  }
+}
+
+/* iOS Safari Input Fixes */
+@supports (-webkit-touch-callout: none) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+  
+  .form-group input:focus,
+  .form-group textarea:focus {
+    font-size: 16px !important;
+  }
+}
+
+/* iOS Safari Transform Fixes */
+@supports (-webkit-touch-callout: none) {
+  .card:hover {
+    -webkit-transform: translateY(-5px) translateZ(0);
+    transform: translateY(-5px) translateZ(0);
+  }
+  
+  .btn-primary:hover {
+    -webkit-transform: translateY(-2px) translateZ(0);
+    transform: translateY(-2px) translateZ(0);
+  }
+}
+
+/* iOS Safari Animation Fixes */
+@supports (-webkit-touch-callout: none) {
+  .mobile-menu {
+    -webkit-transform: translateY(-100%) translateZ(0);
+    transform: translateY(-100%) translateZ(0);
+  }
+  
+  .mobile-menu.active {
+    -webkit-transform: translateY(0) translateZ(0);
+    transform: translateY(0) translateZ(0);
+  }
+  
+  .mobile-menu-toggle.active span:nth-child(1) {
+    -webkit-transform: rotate(-45deg) translate(-5px, 6px) translateZ(0);
+    transform: rotate(-45deg) translate(-5px, 6px) translateZ(0);
+  }
+  
+  .mobile-menu-toggle.active span:nth-child(3) {
+    -webkit-transform: rotate(45deg) translate(-5px, -6px) translateZ(0);
+    transform: rotate(45deg) translate(-5px, -6px) translateZ(0);
+  }
+}
+
+/* iOS Safari Backdrop Filter Fallback */
+@supports not (backdrop-filter: blur(10px)) {
+  .navbar {
+    background: rgba(255, 255, 255, 0.95);
+  }
+}
+
+/* iOS Safari Grid Fallback */
+@supports not (display: grid) {
+  .project-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+  }
+  
+  .project-grid > * {
+    flex: 1 1 300px;
+  }
+  
+  .skills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .skills-grid > * {
+    flex: 1 1 150px;
+  }
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
