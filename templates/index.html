@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Il Mio Portfolio{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div class="hero-content animate-fade-in">
+            <h1>Ciao, sono Steven</h1>
+            <p class="hero-subtitle">Sviluppatore Versatile: Web, Bot & Sistemi Industriali</p>
+            <p class="hero-description">
+                Combinando competenze web, automazione e sistemi industriali, creo soluzioni 
+                complete che spaziano dallo sviluppo di siti web alla programmazione PLC Siemens.
+            </p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('projects') }}" class="btn btn-primary">Vedi i Miei Progetti</a>
+                <a href="{{ url_for('contact') }}" class="btn btn-outline">Contattami</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Preview Section -->
+<section class="section">
+    <div class="container">
+        <div class="about-content">
+            <div class="about-text">
+                <h2>Chi Sono</h2>
+                <p>
+                    Sono un sviluppatore versatile con competenze che spaziano dallo sviluppo web 
+                    alla programmazione PLC e sistemi industriali, fino alla creazione di bot intelligenti.
+                </p>
+                <p>
+                    Dallo sviluppo di siti web con HTML, CSS, JavaScript, Python e PHP, alla 
+                    programmazione di sistemi Siemens S7-1500R/H e bot per Discord, Twitch e Telegram.
+                </p>
+                <a href="{{ url_for('about') }}" class="btn btn-primary">Scopri di Più</a>
+            </div>
+            <div class="about-image">
+                <!-- Qui puoi aggiungere la tua foto -->
+                <div class="placeholder-image">
+                    <i class="fas fa-user-circle" style="font-size: 200px; color: var(--primary-color);"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Skills Preview -->
+<section class="section" style="background-color: var(--bg-dark);">
+    <div class="container">
+        <h2 class="text-center">Le Mie Competenze</h2>
+        <div class="skills-grid">
+            <div class="skill-item">
+                <i class="fab fa-html5"></i>
+                <h4>HTML & CSS</h4>
+            </div>
+            <div class="skill-item">
+                <i class="fab fa-js"></i>
+                <h4>JavaScript</h4>
+            </div>
+            <div class="skill-item">
+                <i class="fab fa-python"></i>
+                <h4>Python</h4>
+            </div>
+            <div class="skill-item">
+                <i class="fab fa-php"></i>
+                <h4>PHP</h4>
+            </div>
+            <div class="skill-item">
+                <i class="fab fa-discord"></i>
+                <h4>Discord Bot</h4>
+            </div>
+            <div class="skill-item">
+                <i class="fas fa-cogs"></i>
+                <h4>PLC Siemens</h4>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Projects -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-center">Progetti in Evidenza</h2>
+        {% if featured_projects %}
+        <div class="project-grid">
+            {% for project in featured_projects %}
+            <div class="card">
+                {% if project.image %}
+                <div class="project-image">
+                    <img src="{{ url_for('static', filename='images/projects/' + project.image) }}" alt="{{ project.title }}">
+                </div>
+                {% endif %}
+                <h3>{{ project.title }}</h3>
+                <p>{{ project.description }}</p>
+                {% if project.technologies_list %}
+                <div class="project-tech">
+                    {% for tech in project.technologies_list[:3] %}
+                    <span class="tech-tag">{{ tech }}</span>
+                    {% endfor %}
+                    {% if project.technologies_list|length > 3 %}
+                    <span class="tech-tag">+{{ project.technologies_list|length - 3 }} altre</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+                <div class="project-actions">
+                    {% if project.link %}
+                    <a href="{{ project.link }}" class="btn btn-outline" target="_blank">Vedi Progetto</a>
+                    {% endif %}
+                    {% if project.github %}
+                    <a href="{{ project.github }}" class="btn btn-outline" target="_blank">
+                        <i class="fab fa-github"></i> Codice
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center" style="padding: 3rem 0;">
+            <i class="fas fa-folder-open" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+            <h3>Nessun progetto in evidenza</h3>
+            <p>Non ci sono ancora progetti marcati come "in evidenza".</p>
+            <a href="{{ url_for('projects') }}" class="btn btn-primary">Vedi Tutti i Progetti</a>
+        </div>
+        {% endif %}
+        {% if featured_projects %}
+        <div class="text-center" style="margin-top: 3rem;">
+            <a href="{{ url_for('projects') }}" class="btn btn-primary">Vedi Tutti i Progetti</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

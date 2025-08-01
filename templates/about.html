@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}Chi Sono - Il Mio Portfolio{% endblock %}
+
+{% block content %}
+<!-- About Hero -->
+<section class="section" style="padding-top: 120px;">
+    <div class="container">
+        <div class="about-content">
+            <div class="about-text">
+                <h1>Chi Sono</h1>
+                <p class="lead">
+                    Sono un sviluppatore versatile con competenze che spaziano dallo sviluppo web 
+                    alla programmazione PLC e sistemi industriali, fino alla creazione di bot intelligenti.
+                </p>
+                <p>
+                    La mia passione è risolvere problemi complessi utilizzando le tecnologie più appropriate 
+                    per ogni situazione. Dallo sviluppo di siti web moderni alla programmazione di sistemi 
+                    industriali Siemens, mi adatto sempre alle esigenze specifiche del progetto.
+                </p>
+                <p>
+                    Credo nell'importanza di essere sempre aperti a nuove sfide e tecnologie. 
+                    Sono disposto ad ascoltare anche progetti al di fuori delle mie competenze 
+                    per valutare se posso essere la persona giusta per realizzarli.
+                </p>
+            </div>
+            <div class="about-image">
+                <div class="placeholder-image">
+                    <i class="fas fa-user-circle" style="font-size: 300px; color: var(--primary-color);"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Experience Section -->
+<section class="section" style="background-color: var(--bg-dark);">
+    <div class="container">
+        <h2 class="text-center">La Mia Esperienza</h2>
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>Sviluppatore PLC & Sistemista Industriale</h3>
+                    <p class="timeline-company">Settore Industriale - Esperienza Attuale</p>
+                    <p>
+                        Programmazione di sistemi Siemens S7-1500R/H ridondanti, configurazione 
+                        di TIA Portal V17 e sviluppo di interfacce SCADA con WinCC V7.5. 
+                        Gestione di sistemi industriali complessi e automazione di processi.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>Sviluppatore Web Full-Stack</h3>
+                    <p class="timeline-company">Progetti Web - Esperienza Attuale</p>
+                    <p>
+                        Sviluppo di siti web completi con HTML, CSS, JavaScript per il frontend 
+                        e Python/PHP per il backend. Creazione di applicazioni web moderne 
+                        e responsive con gestione database integrata.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3>Sviluppatore Bot & AI</h3>
+                    <p class="timeline-company">Progetti Bot - Esperienza Attuale</p>
+                    <p>
+                        Creazione di bot intelligenti per Discord, Twitch e Telegram. 
+                        Integrazione di sistemi di intelligenza artificiale e automazione 
+                        di processi social e di streaming.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Skills Section -->
+<section class="section">
+    <div class="container">
+        <h2 class="text-center">Le Mie Competenze</h2>
+        
+        <div class="skills-categories">
+            <div class="skill-category">
+                <h3>Sviluppo Web</h3>
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <i class="fab fa-html5"></i>
+                        <h4>HTML</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 95%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fab fa-css3-alt"></i>
+                        <h4>CSS</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 90%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fab fa-js"></i>
+                        <h4>JavaScript</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 85%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fab fa-python"></i>
+                        <h4>Python</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 90%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fab fa-php"></i>
+                        <h4>PHP</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 80%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="skill-category">
+                <h3>Bot & Automazione</h3>
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <i class="fab fa-discord"></i>
+                        <h4>Discord Bot</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 90%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fab fa-twitch"></i>
+                        <h4>Twitch Bot</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 85%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fab fa-telegram"></i>
+                        <h4>Telegram Bot</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 85%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fas fa-robot"></i>
+                        <h4>Intelligenza Artificiale</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 80%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="skill-category">
+                <h3>Sistemi Industriali</h3>
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <i class="fas fa-cogs"></i>
+                        <h4>PLC Siemens</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 95%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fas fa-microchip"></i>
+                        <h4>S7-1500R/H</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 90%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fas fa-desktop"></i>
+                        <h4>TIA Portal V17</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 90%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fas fa-chart-line"></i>
+                        <h4>WinCC V7.5</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 85%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="skill-category">
+                <h3>Database & Software</h3>
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <i class="fas fa-database"></i>
+                        <h4>Gestione Database</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 85%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fas fa-laptop-code"></i>
+                        <h4>Software Applicativi</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 80%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fab fa-git-alt"></i>
+                        <h4>Git</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 85%;"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <i class="fas fa-tools"></i>
+                        <h4>Strumenti Dev</h4>
+                        <div class="skill-level">
+                            <div class="skill-bar" style="width: 80%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Education Section -->
+<section class="section" style="background-color: var(--bg-dark);">
+    <div class="container">
+        <h2 class="text-center">Formazione</h2>
+        <div class="education-grid">
+            <div class="education-item">
+                <h3>Formazione Tecnica Industriale</h3>
+                <p class="education-school">Settore Industriale</p>
+                <p class="education-year">Esperienza Attuale</p>
+                <p>
+                    Specializzazione in programmazione PLC Siemens, sistemi S7-1500R/H ridondanti, 
+                    TIA Portal V17 e interfacce SCADA WinCC V7.5. Competenze in automazione industriale.
+                </p>
+            </div>
+            
+            <div class="education-item">
+                <h3>Sviluppo Web & Bot</h3>
+                <p class="education-school">Progetti Personali & Professionali</p>
+                <p class="education-year">Esperienza Attuale</p>
+                <p>
+                    Sviluppo di siti web completi con HTML, CSS, JavaScript, Python e PHP. 
+                    Creazione di bot intelligenti per Discord, Twitch e Telegram con integrazione AI.
+                </p>
+            </div>
+            
+            <div class="education-item">
+                <h3>Gestione Database & Software</h3>
+                <p class="education-school">Esperienza Pratica</p>
+                <p class="education-year">Esperienza Attuale</p>
+                <p>
+                    Competenze nella gestione e progettazione di database. Sviluppo di software 
+                    applicativi personalizzati per diverse esigenze aziendali e industriali.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact CTA -->
+<section class="section">
+    <div class="container text-center">
+        <h2>Interessato a Collaborare?</h2>
+        <p>
+            Sono sempre aperto a nuove sfide e progetti interessanti, sia nel settore web 
+            che industriale. Sono disposto ad ascoltare anche progetti al di fuori delle 
+            mie competenze per valutare se posso essere la persona giusta per realizzarli.
+        </p>
+        <a href="{{ url_for('contact') }}" class="btn btn-primary">Contattami</a>
+    </div>
+</section>
+{% endblock %}

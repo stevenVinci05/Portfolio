@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if project %}Modifica Progetto{% else %}Nuovo Progetto{% endif %} - Admin
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <div class="container">
+            <div class="admin-header-content">
+                <div class="admin-title">
+                    <h1>
+                        <i class="fas fa-{% if project %}edit{% else %}plus{% endif %}"></i>
+                        {% if project %}Modifica Progetto{% else %}Nuovo Progetto{% endif %}
+                    </h1>
+                    <p>
+                        {% if project %}
+                            Modifica i dettagli del progetto "{{ project.title }}"
+                        {% else %}
+                            Crea un nuovo progetto per il tuo portfolio
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="admin-actions">
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i> Torna alla Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Form -->
+    <div class="admin-content">
+        <div class="container">
+            <div class="project-form-container">
+                <form method="POST" class="project-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="title">Titolo del Progetto *</label>
+                            <input type="text" id="title" name="title" 
+                                   value="{{ project.title if project else '' }}" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="category">Categoria</label>
+                            <select id="category" name="category">
+                                <option value="web" {% if project and project.category == 'web' %}selected{% endif %}>Web App</option>
+                                <option value="mobile" {% if project and project.category == 'mobile' %}selected{% endif %}>Mobile</option>
+                                <option value="design" {% if project and project.category == 'design' %}selected{% endif %}>Design</option>
+                                <option value="other" {% if project and project.category == 'other' %}selected{% endif %}>Altro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Descrizione *</label>
+                        <textarea id="description" name="description" rows="4" required>{{ project.description if project else '' }}</textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="image">Nome Immagine</label>
+                            <input type="text" id="image" name="image" 
+                                   value="{{ project.image if project else 'project-default.jpg' }}"
+                                   placeholder="project-default.jpg">
+                            <small>Inserisci solo il nome del file (es: my-project.jpg)</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="featured">Progetto in Evidenza</label>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="featured" name="featured" 
+                                       {% if project and project.featured %}checked{% endif %}>
+                                <label for="featured">Mostra nella sezione "Progetti in Evidenza"</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="link">Link Demo</label>
+                            <input type="url" id="link" name="link" 
+                                   value="{{ project.link if project else '' }}"
+                                   placeholder="https://demo.example.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="github">Link GitHub</label>
+                            <input type="url" id="github" name="github" 
+                                   value="{{ project.github if project else '' }}"
+                                   placeholder="https://github.com/username/project">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="technologies">Tecnologie (separate da virgola)</label>
+                        <input type="text" id="technologies" name="technologies" 
+                               value="{{ project.get_technologies_list()|join(', ') if project else '' }}"
+                               placeholder="React, Node.js, MongoDB">
+                        <small>Es: React, Node.js, MongoDB, CSS3</small>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            {% if project %}Aggiorna Progetto{% else %}Crea Progetto{% endif %}
+                        </button>
+                        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">
+                            Annulla
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

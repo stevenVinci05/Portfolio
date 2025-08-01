@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Messaggi - Admin Dashboard{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <div class="container">
+            <div class="admin-header-content">
+                <div class="admin-title">
+                    <h1><i class="fas fa-envelope"></i> Messaggi Ricevuti</h1>
+                    <p>Gestisci i messaggi di contatto</p>
+                </div>
+                <div class="admin-actions">
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">
+                        <i class="fas fa-arrow-left"></i> Torna alla Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages Management -->
+    <div class="admin-content">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="messages-container">
+                <div class="messages-header">
+                    <h2>Messaggi ({{ messages|length }})</h2>
+                    <div class="messages-stats">
+                        <span class="stat-item">
+                            <i class="fas fa-envelope-open"></i>
+                            <span id="unread-count">{{ messages|selectattr('read', 'equalto', false)|list|length }}</span> Non letti
+                        </span>
+                    </div>
+                </div>
+                
+                {% if messages %}
+                <div class="messages-list">
+                    {% for message in messages %}
+                    <div class="message-card {% if not message.read %}unread{% endif %}" data-message-id="{{ message.id }}">
+                        <div class="message-header">
+                            <div class="message-info">
+                                <h4>{{ message.subject }}</h4>
+                                <div class="message-meta">
+                                    <span class="sender">
+                                        <i class="fas fa-user"></i> {{ message.name }}
+                                    </span>
+                                    <span class="email">
+                                        <i class="fas fa-envelope"></i> {{ message.email }}
+                                    </span>
+                                    <span class="date">
+                                        <i class="fas fa-clock"></i> {{ message.created_at.strftime('%d/%m/%Y %H:%M') }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="message-actions">
+                                {% if not message.read %}
+                                <button onclick="markAsRead({{ message.id }})" class="btn btn-small btn-outline" title="Segna come letto">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                {% else %}
+                                <span class="read-badge">
+                                    <i class="fas fa-check-circle"></i> Letto
+                                </span>
+                                {% endif %}
+                                <button onclick="deleteMessage({{ message.id }}, '{{ message.subject }}')" 
+                                        class="btn btn-small btn-danger" title="Elimina">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="message-content">
+                            <p>{{ message.message }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="no-messages">
+                    <i class="fas fa-inbox"></i>
+                    <h3>Nessun messaggio ricevuto</h3>
+                    <p>I messaggi inviati tramite il form di contatto appariranno qui.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Conferma Eliminazione</h3>
+        </div>
+        <div class="modal-body">
+            <p>Sei sicuro di voler eliminare il messaggio "<span id="messageSubject"></span>"?</p>
+            <p>Questa azione non può essere annullata.</p>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal()" class="btn btn-outline">Annulla</button>
+            <form id="deleteForm" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-danger">Elimina</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function markAsRead(messageId) {
+    fetch(`/admin/messages/${messageId}/read`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const messageCard = document.querySelector(`[data-message-id="${messageId}"]`);
+            messageCard.classList.remove('unread');
+            
+            // Aggiorna il contatore dei messaggi non letti
+            const unreadCount = document.getElementById('unread-count');
+            const currentCount = parseInt(unreadCount.textContent);
+            unreadCount.textContent = Math.max(0, currentCount - 1);
+            
+            // Sostituisci il bottone con il badge "Letto"
+            const actionsDiv = messageCard.querySelector('.message-actions');
+            const readButton = actionsDiv.querySelector('.btn-outline');
+            readButton.outerHTML = '<span class="read-badge"><i class="fas fa-check-circle"></i> Letto</span>';
+        }
+    })
+    .catch(error => {
+        console.error('Errore:', error);
+    });
+}
+
+function deleteMessage(messageId, messageSubject) {
+    document.getElementById('messageSubject').textContent = messageSubject;
+    document.getElementById('deleteForm').action = `/admin/messages/${messageId}/delete`;
+    document.getElementById('deleteModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+// Chiudi modal cliccando fuori
+window.onclick = function(event) {
+    const modal = document.getElementById('deleteModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+
+// Chiudi modal con ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+});
+</script>
+{% endblock %} 

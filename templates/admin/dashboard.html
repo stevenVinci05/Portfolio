@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Portfolio{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <div class="container">
+            <div class="admin-header-content">
+                <div class="admin-title">
+                    <h1><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h1>
+                    <p>Gestisci i tuoi progetti</p>
+                </div>
+                <div class="admin-actions">
+                    <a href="{{ url_for('admin_new_project') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nuovo Progetto
+                    </a>
+                    <a href="{{ url_for('admin_messages') }}" class="btn btn-outline">
+                        <i class="fas fa-envelope"></i> Messaggi
+                    </a>
+                    <a href="{{ url_for('admin_logout') }}" class="btn btn-outline">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Projects Management -->
+    <div class="admin-content">
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <div class="projects-table-container">
+                <h2>Progetti ({{ projects|length }})</h2>
+                
+                {% if projects %}
+                <div class="projects-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Immagine</th>
+                                <th>Titolo</th>
+                                <th>Categoria</th>
+                                <th>Featured</th>
+                                <th>Data Creazione</th>
+                                <th>Azioni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for project in projects %}
+                            <tr>
+                                <td class="project-image-cell">
+                                    <div class="project-thumbnail">
+                                        <i class="fas fa-code"></i>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="project-info">
+                                        <h4>{{ project.title }}</h4>
+                                        <p>{{ project.description[:100] }}...</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="category-badge category-{{ project.category }}">
+                                        {{ project.category }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if project.featured %}
+                                        <span class="featured-badge">
+                                            <i class="fas fa-star"></i> Featured
+                                        </span>
+                                    {% else %}
+                                        <span class="not-featured">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ project.created_at.strftime('%d/%m/%Y') }}
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <a href="{{ url_for('admin_edit_project', project_id=project.id) }}" 
+                                           class="btn btn-small btn-outline" title="Modifica">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button onclick="deleteProject({{ project.id }}, '{{ project.title }}')" 
+                                                class="btn btn-small btn-danger" title="Elimina">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="no-projects">
+                    <i class="fas fa-folder-open"></i>
+                    <h3>Nessun progetto trovato</h3>
+                    <p>Crea il tuo primo progetto per iniziare!</p>
+                    <a href="{{ url_for('admin_new_project') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Crea Primo Progetto
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle"></i> Conferma Eliminazione</h3>
+        </div>
+        <div class="modal-body">
+            <p>Sei sicuro di voler eliminare il progetto "<span id="projectTitle"></span>"?</p>
+            <p>Questa azione non può essere annullata.</p>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal()" class="btn btn-outline">Annulla</button>
+            <form id="deleteForm" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-danger">Elimina</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+function deleteProject(projectId, projectTitle) {
+    document.getElementById('projectTitle').textContent = projectTitle;
+    document.getElementById('deleteForm').action = `/admin/projects/${projectId}/delete`;
+    document.getElementById('deleteModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Previene scroll della pagina
+}
+
+function closeModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+    document.body.style.overflow = 'auto'; // Ripristina scroll
+}
+
+// Chiudi modal cliccando fuori
+window.onclick = function(event) {
+    const modal = document.getElementById('deleteModal');
+    if (event.target == modal) {
+        closeModal();
+    }
+}
+
+// Chiudi modal con ESC
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeModal();
+    }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Errore del Server - Portfolio{% endblock %}
+
+{% block content %}
+<div class="section" style="padding-top: 120px; min-height: 60vh; display: flex; align-items: center;">
+    <div class="container text-center">
+        <div class="error-page">
+            <h1 style="font-size: 6rem; color: var(--primary-color); margin-bottom: 1rem;">500</h1>
+            <h2>Errore del Server</h2>
+            <p class="lead">
+                Si è verificato un errore interno del server. Riprova più tardi.
+            </p>
+            <div style="margin-top: 2rem;">
+                <a href="{{ url_for('index') }}" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Torna alla Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

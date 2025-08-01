@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Contatti - Il Mio Portfolio{% endblock %}
+
+{% block extra_head %}
+<!-- Font Awesome aggiornato per icone X e Threads -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<!-- Contact Hero -->
+<section class="section" style="padding-top: 120px;">
+    <div class="container">
+        <div class="text-center">
+            <h1>Contattami</h1>
+            <p class="lead">
+                Hai un progetto in mente? Vuoi collaborare? O semplicemente vuoi dire ciao? 
+                Non esitare a contattarmi!
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form and Info -->
+<section class="section">
+    <div class="container">
+        <div class="contact-content">
+            <!-- Contact Form -->
+            <div class="contact-form-section">
+                <h2>Invia un Messaggio</h2>
+                
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <form method="POST" class="contact-form">
+                    <div class="form-group">
+                        <label for="name">Nome Completo *</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject">Oggetto</label>
+                        <input type="text" id="subject" name="subject">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="message">Messaggio *</label>
+                        <textarea id="message" name="message" rows="6" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" id="submit-btn">
+                        <i class="fas fa-paper-plane"></i> Invia Messaggio
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Contact Info -->
+            <div class="contact-info-section">
+                <h2>Informazioni di Contatto</h2>
+                
+                <div class="contact-info-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-envelope"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Email</h4>
+                        <p>tuonome@email.com</p>
+                    </div>
+                </div>
+                
+
+                
+                <div class="contact-info-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Località</h4>
+                        <p>Siracusa, Italia</p>
+                    </div>
+                </div>
+                
+                <div class="contact-info-item">
+                    <div class="contact-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="contact-details">
+                        <h4>Orari</h4>
+                        <p>Lun-Ven: 9:00 - 18:00</p>
+                    </div>
+                </div>
+                
+                <!-- Social Links -->
+                <div class="social-contact">
+                    <h4>Seguimi sui Social</h4>
+                    <div class="social-links-contact">
+                        <a href="#" class="social-link" title="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <a href="#" class="social-link" title="LinkedIn">
+                            <i class="fab fa-linkedin"></i>
+                        </a>
+                        <a href="#" class="social-link" title="X (Twitter)">
+                            <i class="fas fa-x"></i>
+                        </a>
+                        <a href="#" class="social-link" title="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link" title="Threads">
+                            <i class="fas fa-at"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="section" style="background-color: var(--bg-dark);">
+    <div class="container">
+        <h2 class="text-center">Domande Frequenti</h2>
+        <div class="faq-grid">
+            <div class="faq-item">
+                <h3>Come funziona il processo di collaborazione?</h3>
+                <p>
+                    Iniziamo con una consulenza gratuita per capire le tue esigenze. 
+                    Poi definiamo insieme obiettivi, timeline e budget. 
+                    Manteniamo una comunicazione costante durante tutto il processo.
+                </p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Quali tecnologie utilizzi?</h3>
+                <p>
+                    Lavoro con HTML, CSS, JavaScript, Python, PHP per lo sviluppo web, 
+                    sistemi PLC Siemens per l'automazione industriale, e creo bot per Discord, 
+                    Twitch e Telegram. Scegliamo sempre la soluzione più adatta al tuo progetto.
+                </p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Quanto tempo richiede un progetto?</h3>
+                <p>
+                    Dipende dalla complessità. Un sito web semplice può richiedere 2-4 settimane, 
+                    mentre applicazioni complesse possono richiedere 2-6 mesi.
+                </p>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Offri supporto post-lancio?</h3>
+                <p>
+                    Sì, offro supporto tecnico e manutenzione continua per garantire 
+                    che il tuo progetto funzioni sempre al meglio.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.contact-form');
+    const emailInput = document.getElementById('email');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    // Funzione per validare email
+    function validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+    
+    // Validazione in tempo reale
+    emailInput.addEventListener('blur', function() {
+        const email = this.value.trim();
+        if (email && !validateEmail(email)) {
+            this.style.borderColor = '#e74c3c';
+            this.setCustomValidity('Inserisci un indirizzo email valido');
+        } else {
+            this.style.borderColor = '';
+            this.setCustomValidity('');
+        }
+    });
+    
+    // Validazione al submit
+    form.addEventListener('submit', function(e) {
+        const email = emailInput.value.trim();
+        
+        if (!validateEmail(email)) {
+            e.preventDefault();
+            alert('Per favore inserisci un indirizzo email valido.');
+            emailInput.focus();
+            return false;
+        }
+        
+        // Disabilita il pulsante durante l'invio
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Invio in corso...';
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
