@@ -41,12 +41,22 @@ def validate_email_address(email):
 @app.route('/')
 def index():
     try:
+        # Verifica se il database esiste
+        db.engine.execute('SELECT 1')
+        
         # Ottieni i progetti in evidenza dal database
         featured_projects = Project.query.filter_by(featured=True).order_by(Project.created_at.desc()).limit(3).all()
         return render_template('index.html', featured_projects=featured_projects)
     except Exception as e:
         print(f"Errore nella homepage: {e}")
-        return render_template('index.html', featured_projects=[])
+        # Se c'è un errore, prova a inizializzare il database
+        try:
+            create_admin()
+            featured_projects = Project.query.filter_by(featured=True).order_by(Project.created_at.desc()).limit(3).all()
+            return render_template('index.html', featured_projects=featured_projects)
+        except Exception as e2:
+            print(f"Errore critico: {e2}")
+            return render_template('index.html', featured_projects=[])
 
 # Route per la pagina Chi Sono
 @app.route('/about')
@@ -57,11 +67,21 @@ def about():
 @app.route('/projects')
 def projects():
     try:
+        # Verifica se il database esiste
+        db.engine.execute('SELECT 1')
+        
         projects_list = Project.query.order_by(Project.created_at.desc()).all()
         return render_template('projects.html', projects=projects_list)
     except Exception as e:
         print(f"Errore nella pagina progetti: {e}")
-        return render_template('projects.html', projects=[])
+        # Se c'è un errore, prova a inizializzare il database
+        try:
+            create_admin()
+            projects_list = Project.query.order_by(Project.created_at.desc()).all()
+            return render_template('projects.html', projects=projects_list)
+        except Exception as e2:
+            print(f"Errore critico: {e2}")
+            return render_template('projects.html', projects=[])
 
 # Route per la pagina Contatti
 @app.route('/contact', methods=['GET', 'POST'])
@@ -267,6 +287,15 @@ def api_messages():
     messages = ContactMessage.query.all()
     return jsonify([message.to_dict() for message in messages])
 
+# Route per inizializzare il database (solo per debug)
+@app.route('/init-db')
+def init_database():
+    try:
+        create_admin()
+        return jsonify({'success': True, 'message': 'Database inizializzato con successo'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # Route per gestire errori 404
 @app.errorhandler(404)
 def not_found(error):
@@ -281,7 +310,9 @@ def internal_error(error):
 def create_admin():
     with app.app_context():
         try:
-            db.create_all()
+            # Forza la creazione di tutte le tabelle
+            db.drop_all()  # Rimuove tabelle esistenti
+            db.create_all()  # Ricrea tutte le tabelle
             
             # Crea admin se non esiste
             admin = User.query.filter_by(username='admin').first()
@@ -294,10 +325,18 @@ def create_admin():
                 admin.set_password('admin123')  # Cambia questa password!
                 db.session.add(admin)
                 db.session.commit()
-                print("Admin creato: username='admin', password='admin123'")
+                print("✅ Database creato e admin configurato: username='admin', password='admin123'")
+            else:
+                print("✅ Database già configurato")
         except Exception as e:
-            print(f"Errore durante la creazione del database: {e}")
+            print(f"❌ Errore durante la creazione del database: {e}")
             db.session.rollback()
+            # Prova a creare solo le tabelle senza admin
+            try:
+                db.create_all()
+                print("✅ Tabelle create senza admin")
+            except Exception as e2:
+                print(f"❌ Errore critico nella creazione tabelle: {e2}")
 
 if __name__ == '__main__':
     create_admin()  # Crea database e admin
