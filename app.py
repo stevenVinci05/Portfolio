@@ -9,7 +9,9 @@ app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here-change-in-production')
 
 # Configurazione Database
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///portfolio.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///portfolio.db')
+if app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgres://'):
+    app.config['SQLALCHEMY_DATABASE_URI'] = app.config['SQLALCHEMY_DATABASE_URI'].replace('postgres://', 'postgresql://', 1)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 
@@ -38,9 +40,13 @@ def validate_email_address(email):
 # Route principale - Homepage
 @app.route('/')
 def index():
-    # Ottieni i progetti in evidenza dal database
-    featured_projects = Project.query.filter_by(featured=True).order_by(Project.created_at.desc()).limit(3).all()
-    return render_template('index.html', featured_projects=featured_projects)
+    try:
+        # Ottieni i progetti in evidenza dal database
+        featured_projects = Project.query.filter_by(featured=True).order_by(Project.created_at.desc()).limit(3).all()
+        return render_template('index.html', featured_projects=featured_projects)
+    except Exception as e:
+        print(f"Errore nella homepage: {e}")
+        return render_template('index.html', featured_projects=[])
 
 # Route per la pagina Chi Sono
 @app.route('/about')
@@ -50,8 +56,12 @@ def about():
 # Route per la pagina Progetti
 @app.route('/projects')
 def projects():
-    projects_list = Project.query.order_by(Project.created_at.desc()).all()
-    return render_template('projects.html', projects=projects_list)
+    try:
+        projects_list = Project.query.order_by(Project.created_at.desc()).all()
+        return render_template('projects.html', projects=projects_list)
+    except Exception as e:
+        print(f"Errore nella pagina progetti: {e}")
+        return render_template('projects.html', projects=[])
 
 # Route per la pagina Contatti
 @app.route('/contact', methods=['GET', 'POST'])
@@ -270,20 +280,24 @@ def internal_error(error):
 # Funzione per creare il database e l'admin iniziale
 def create_admin():
     with app.app_context():
-        db.create_all()
-        
-        # Crea admin se non esiste
-        admin = User.query.filter_by(username='admin').first()
-        if not admin:
-            admin = User(
-                username='admin',
-                email='admin@portfolio.com',
-                is_admin=True
-            )
-            admin.set_password('admin123')  # Cambia questa password!
-            db.session.add(admin)
-            db.session.commit()
-            print("Admin creato: username='admin', password='admin123'")
+        try:
+            db.create_all()
+            
+            # Crea admin se non esiste
+            admin = User.query.filter_by(username='admin').first()
+            if not admin:
+                admin = User(
+                    username='admin',
+                    email='admin@portfolio.com',
+                    is_admin=True
+                )
+                admin.set_password('admin123')  # Cambia questa password!
+                db.session.add(admin)
+                db.session.commit()
+                print("Admin creato: username='admin', password='admin123'")
+        except Exception as e:
+            print(f"Errore durante la creazione del database: {e}")
+            db.session.rollback()
 
 if __name__ == '__main__':
     create_admin()  # Crea database e admin
