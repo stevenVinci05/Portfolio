@@ -132,17 +132,17 @@ def reviews():
         # Validazione dei campi obbligatori
         if not name or not rating or not comment:
             flash('Tutti i campi sono obbligatori!', 'error')
-            return render_template('reviews.html')
+            return render_template('reviews.html', reviews=[], average_rating=0)
         
         # Validazione rating (1-5)
         try:
             rating = int(rating)
             if rating < 1 or rating > 5:
                 flash('Il rating deve essere tra 1 e 5 stelle!', 'error')
-                return render_template('reviews.html')
+                return render_template('reviews.html', reviews=[], average_rating=0)
         except ValueError:
             flash('Rating non valido!', 'error')
-            return render_template('reviews.html')
+            return render_template('reviews.html', reviews=[], average_rating=0)
         
         # Salva la recensione nel database
         review = Review(
@@ -321,10 +321,15 @@ def admin_approve_review(review_id):
         flash('Accesso non autorizzato!', 'error')
         return redirect(url_for('index'))
     
-    review = Review.query.get_or_404(review_id)
-    review.approved = True
-    db.session.commit()
-    flash('Recensione approvata con successo!', 'success')
+    try:
+        review = Review.query.get_or_404(review_id)
+        review.approved = True
+        db.session.commit()
+        flash('Recensione approvata con successo!', 'success')
+    except Exception as e:
+        print(f"Errore durante l'approvazione della recensione: {e}")
+        flash('Errore durante l\'approvazione della recensione!', 'error')
+    
     return redirect(url_for('admin_reviews'))
 
 @app.route('/admin/reviews/<int:review_id>/delete', methods=['POST'])
@@ -334,10 +339,15 @@ def admin_delete_review(review_id):
         flash('Accesso non autorizzato!', 'error')
         return redirect(url_for('index'))
     
-    review = Review.query.get_or_404(review_id)
-    db.session.delete(review)
-    db.session.commit()
-    flash('Recensione eliminata con successo!', 'success')
+    try:
+        review = Review.query.get_or_404(review_id)
+        db.session.delete(review)
+        db.session.commit()
+        flash('Recensione eliminata con successo!', 'success')
+    except Exception as e:
+        print(f"Errore durante l'eliminazione della recensione: {e}")
+        flash('Errore durante l\'eliminazione della recensione!', 'error')
+    
     return redirect(url_for('admin_reviews'))
 
 @app.route('/admin/messages/<int:message_id>/read', methods=['POST'])
