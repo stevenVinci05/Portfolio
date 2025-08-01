@@ -303,6 +303,111 @@ def admin_messages():
     messages = ContactMessage.query.order_by(ContactMessage.created_at.desc()).all()
     return render_template('admin/messages.html', messages=messages)
 
+# Admin Users Routes
+@app.route('/admin/users')
+@login_required
+def admin_users():
+    if not current_user.is_admin:
+        flash('Accesso non autorizzato!', 'error')
+        return redirect(url_for('index'))
+    
+    # Solo Sterben può gestire gli utenti
+    if current_user.username != 'Sterben':
+        flash('Solo Sterben può gestire gli utenti admin!', 'error')
+        return redirect(url_for('admin_dashboard'))
+    
+    users = User.query.order_by(User.created_at.desc()).all()
+    return render_template('admin/users.html', users=users)
+
+@app.route('/admin/users/new', methods=['GET', 'POST'])
+@login_required
+def admin_new_user():
+    if not current_user.is_admin:
+        flash('Accesso non autorizzato!', 'error')
+        return redirect(url_for('index'))
+    
+    # Solo Sterben può creare nuovi admin
+    if current_user.username != 'Sterben':
+        flash('Solo Sterben può creare nuovi utenti admin!', 'error')
+        return redirect(url_for('admin_dashboard'))
+    
+    if request.method == 'POST':
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+        
+        # Validazione
+        if not username or not email or not password:
+            flash('Tutti i campi sono obbligatori!', 'error')
+            return render_template('admin/user_form.html')
+        
+        if password != confirm_password:
+            flash('Le password non coincidono!', 'error')
+            return render_template('admin/user_form.html')
+        
+        # Verifica se l'username esiste già
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Username già esistente!', 'error')
+            return render_template('admin/user_form.html')
+        
+        # Verifica email
+        is_valid_email, email_result = validate_email_address(email)
+        if not is_valid_email:
+            flash(f'Email non valida: {email_result}', 'error')
+            return render_template('admin/user_form.html')
+        
+        # Crea nuovo admin
+        new_admin = User(
+            username=username,
+            email=email_result,
+            is_admin=True
+        )
+        new_admin.set_password(password)
+        
+        db.session.add(new_admin)
+        db.session.commit()
+        
+        flash('Nuovo admin creato con successo!', 'success')
+        return redirect(url_for('admin_users'))
+    
+    return render_template('admin/user_form.html')
+
+@app.route('/admin/users/<int:user_id>/delete', methods=['POST'])
+@login_required
+def admin_delete_user(user_id):
+    if not current_user.is_admin:
+        flash('Accesso non autorizzato!', 'error')
+        return redirect(url_for('index'))
+    
+    # Solo Sterben può eliminare utenti
+    if current_user.username != 'Sterben':
+        flash('Solo Sterben può eliminare utenti admin!', 'error')
+        return redirect(url_for('admin_dashboard'))
+    
+    try:
+        user = User.query.get_or_404(user_id)
+        
+        # Non permettere di eliminare se stesso
+        if user.id == current_user.id:
+            flash('Non puoi eliminare il tuo account!', 'error')
+            return redirect(url_for('admin_users'))
+        
+        # Non permettere di eliminare Sterben
+        if user.username == 'Sterben':
+            flash('Non puoi eliminare l\'account Sterben!', 'error')
+            return redirect(url_for('admin_users'))
+        
+        db.session.delete(user)
+        db.session.commit()
+        flash('Utente eliminato con successo!', 'success')
+    except Exception as e:
+        print(f"Errore durante l'eliminazione dell'utente: {e}")
+        flash('Errore durante l\'eliminazione dell\'utente!', 'error')
+    
+    return redirect(url_for('admin_users'))
+
 # Admin Reviews Routes
 @app.route('/admin/reviews')
 @login_required
@@ -415,17 +520,17 @@ def create_admin():
             db.create_all()  # Ricrea tutte le tabelle
             
             # Crea admin se non esiste
-            admin = User.query.filter_by(username='admin').first()
+            admin = User.query.filter_by(username='Sterben').first()
             if not admin:
                 admin = User(
-                    username='admin',
+                    username='Sterben',
                     email='admin@portfolio.com',
                     is_admin=True
                 )
-                admin.set_password('admin123')  # Cambia questa password!
+                admin.set_password('Ste@2025!')  # Credenziali personalizzate
                 db.session.add(admin)
                 db.session.commit()
-                print("✅ Database creato e admin configurato: username='admin', password='admin123'")
+                print("✅ Database creato e admin configurato: username='Sterben', password='Ste@2025!'")
             else:
                 print("✅ Database già configurato")
         except Exception as e:

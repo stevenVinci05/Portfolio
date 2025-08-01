@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Gestione Utenti - Admin{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<div class="admin-header">
+    <div class="container">
+        <h1>Gestione Utenti Admin</h1>
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin_messages') }}" class="btn btn-outline">
+                <i class="fas fa-envelope"></i> Messaggi
+            </a>
+            <a href="{{ url_for('admin_reviews') }}" class="btn btn-outline">
+                <i class="fas fa-star"></i> Recensioni
+            </a>
+            <a href="{{ url_for('admin_users') }}" class="btn btn-primary">
+                <i class="fas fa-users"></i> Utenti
+            </a>
+            <a href="{{ url_for('admin_logout') }}" class="btn btn-outline">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </div>
+</div>
+
+<!-- Admin Content -->
+<div class="admin-dashboard">
+    <div class="container">
+        <div class="admin-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Users Container -->
+            <div class="users-container">
+                <div class="users-header">
+                    <h2>Utenti Admin ({{ users|length }} totali)</h2>
+                    <a href="{{ url_for('admin_new_user') }}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Nuovo Admin
+                    </a>
+                </div>
+
+                {% if users %}
+                    <div class="users-table">
+                        {% for user in users %}
+                        <div class="user-item">
+                            <div class="user-info">
+                                <div class="user-header">
+                                    <h3>{{ user.username }}</h3>
+                                    <span class="user-role">
+                                        <i class="fas fa-shield-alt"></i> Admin
+                                    </span>
+                                </div>
+                                <p class="user-email">{{ user.email }}</p>
+                                <div class="user-meta">
+                                    <span class="user-date">
+                                        <i class="far fa-calendar-alt"></i>
+                                        Creato: {{ user.created_at.strftime('%d/%m/%Y %H:%M') if user.created_at else 'N/A' }}
+                                    </span>
+                                    {% if user.username == 'Sterben' %}
+                                        <span class="status primary">
+                                            <i class="fas fa-crown"></i> Super Admin
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="user-actions">
+                                {% if user.username != 'Sterben' %}
+                                    <form method="POST" action="{{ url_for('admin_delete_user', user_id=user.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Eliminare questo utente admin?')">
+                                            <i class="fas fa-trash"></i> Elimina
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span class="btn btn-secondary btn-sm disabled">
+                                        <i class="fas fa-lock"></i> Protetto
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-users">
+                        <i class="fas fa-users" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                        <h3>Nessun utente</h3>
+                        <p>Non ci sono ancora utenti admin da gestire.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

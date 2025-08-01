@@ -26,6 +26,11 @@
                     <a href="{{ url_for('admin_reviews') }}" class="btn btn-outline">
                         <i class="fas fa-star"></i> Recensioni
                     </a>
+                    {% if current_user.username == 'Sterben' %}
+                    <a href="{{ url_for('admin_users') }}" class="btn btn-outline">
+                        <i class="fas fa-users"></i> Utenti
+                    </a>
+                    {% endif %}
                     <a href="{{ url_for('admin_logout') }}" class="btn btn-outline">
                         <i class="fas fa-sign-out-alt"></i> Logout
                     </a>
