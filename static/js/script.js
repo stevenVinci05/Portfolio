@@ -123,13 +123,45 @@ document.addEventListener('DOMContentLoaded', function() {
         imageObserver.observe(img);
     });
 
-    // Mobile menu toggle (per future implementazioni)
-    const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-    const navLinks = document.querySelector('.nav-links');
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const body = document.body;
     
-    if (mobileMenuToggle && navLinks) {
+    if (mobileMenuToggle && mobileMenu) {
         mobileMenuToggle.addEventListener('click', function() {
-            navLinks.classList.toggle('active');
+            this.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+            
+            // Mostra/nascondi il menu mobile
+            if (mobileMenu.classList.contains('active')) {
+                mobileMenu.style.display = 'block';
+                body.style.overflow = 'hidden'; // Previene lo scroll del body
+            } else {
+                mobileMenu.style.display = 'none';
+                body.style.overflow = ''; // Ripristina lo scroll
+            }
+        });
+        
+        // Chiudi il menu quando si clicca su un link
+        const mobileNavLinks = mobileMenu.querySelectorAll('a');
+        mobileNavLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                mobileMenuToggle.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                mobileMenu.style.display = 'none';
+                body.style.overflow = '';
+            });
+        });
+        
+        // Chiudi il menu quando si ridimensiona la finestra
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 767) {
+                mobileMenuToggle.classList.remove('active');
+                mobileMenu.classList.remove('active');
+                mobileMenu.style.display = 'none';
+                body.style.overflow = '';
+            }
         });
     }
 
