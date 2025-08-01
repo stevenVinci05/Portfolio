@@ -174,21 +174,27 @@ document.addEventListener('DOMContentLoaded', function() {
             // Mostra/nascondi il menu mobile
             if (mobileMenu.classList.contains('active')) {
                 mobileMenu.style.display = 'block';
+                mobileMenu.style.visibility = 'visible';
                 body.style.overflow = 'hidden'; // Previene lo scroll del body
                 
                 // iOS Safari specific fix
                 if (isIOS) {
                     body.style.position = 'fixed';
                     body.style.width = '100%';
+                    body.style.top = `-${window.scrollY}px`;
                 }
             } else {
                 mobileMenu.style.display = 'none';
+                mobileMenu.style.visibility = 'hidden';
                 body.style.overflow = ''; // Ripristina lo scroll
                 
                 // iOS Safari specific fix
                 if (isIOS) {
+                    const scrollY = body.style.top;
                     body.style.position = '';
                     body.style.width = '';
+                    body.style.top = '';
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
                 }
             }
         });
@@ -200,12 +206,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileMenuToggle.classList.remove('active');
                 mobileMenu.classList.remove('active');
                 mobileMenu.style.display = 'none';
+                mobileMenu.style.visibility = 'hidden';
                 body.style.overflow = '';
                 
                 // iOS Safari specific fix
                 if (isIOS) {
+                    const scrollY = body.style.top;
                     body.style.position = '';
                     body.style.width = '';
+                    body.style.top = '';
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
                 }
             });
         });
@@ -216,12 +226,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileMenuToggle.classList.remove('active');
                 mobileMenu.classList.remove('active');
                 mobileMenu.style.display = 'none';
+                mobileMenu.style.visibility = 'hidden';
                 body.style.overflow = '';
                 
                 // iOS Safari specific fix
                 if (isIOS) {
+                    const scrollY = body.style.top;
                     body.style.position = '';
                     body.style.width = '';
+                    body.style.top = '';
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
                 }
             }
         });
@@ -232,15 +246,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 mobileMenuToggle.classList.remove('active');
                 mobileMenu.classList.remove('active');
                 mobileMenu.style.display = 'none';
+                mobileMenu.style.visibility = 'hidden';
                 body.style.overflow = '';
                 
                 // iOS Safari specific fix
                 if (isIOS) {
+                    const scrollY = body.style.top;
                     body.style.position = '';
                     body.style.width = '';
+                    body.style.top = '';
+                    window.scrollTo(0, parseInt(scrollY || '0') * -1);
                 }
             }
         });
+        
+        // Gestione orientamento su iOS
+        if (isIOS) {
+            window.addEventListener('orientationchange', function() {
+                setTimeout(() => {
+                    // Ricalcola l'altezza del viewport
+                    const vh = window.innerHeight * 0.01;
+                    document.documentElement.style.setProperty('--vh', `${vh}px`);
+                    
+                    // Chiudi il menu se aperto durante il cambio orientamento
+                    if (mobileMenu.classList.contains('active')) {
+                        mobileMenuToggle.classList.remove('active');
+                        mobileMenu.classList.remove('active');
+                        mobileMenu.style.display = 'none';
+                        mobileMenu.style.visibility = 'hidden';
+                        body.style.overflow = '';
+                        body.style.position = '';
+                        body.style.width = '';
+                        body.style.top = '';
+                    }
+                }, 100);
+            });
+        }
     }
 
     // Parallax effect per il hero section
