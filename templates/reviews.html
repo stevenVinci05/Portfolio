@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Recensioni - Steven Portfolio{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <h1>Recensioni</h1>
+        <p>Vedi cosa dicono di me i clienti e lascia la tua recensione</p>
+    </div>
+</section>
+
+<!-- Reviews Section -->
+<section class="section">
+    <div class="container">
+        <!-- Average Rating -->
+        {% if average_rating > 0 %}
+        <div class="average-rating">
+            <h2>Media Recensioni</h2>
+            <div class="rating-display">
+                <div class="stars">
+                    {% for i in range(5) %}
+                        {% if i < average_rating %}
+                            <i class="fas fa-star filled"></i>
+                        {% elif i < average_rating + 0.5 and average_rating % 1 >= 0.5 %}
+                            <i class="fas fa-star-half-alt filled"></i>
+                        {% else %}
+                            <i class="far fa-star"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <span class="rating-text">{{ average_rating }}/5 ({{ reviews|length }} recensioni)</span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Review Form -->
+        <div class="review-form-container">
+            <h2>Lascia una Recensione</h2>
+            <form method="POST" class="review-form">
+                <div class="form-group">
+                    <label for="name">Nome *</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="rating">Valutazione *</label>
+                    <div class="star-rating">
+                        <input type="radio" id="star5" name="rating" value="5" required>
+                        <label for="star5"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="star4" name="rating" value="4">
+                        <label for="star4"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="star3" name="rating" value="3">
+                        <label for="star3"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="star2" name="rating" value="2">
+                        <label for="star2"><i class="fas fa-star"></i></label>
+                        <input type="radio" id="star1" name="rating" value="1">
+                        <label for="star1"><i class="fas fa-star"></i></label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comment">Recensione *</label>
+                    <textarea id="comment" name="comment" rows="5" required placeholder="Racconta la tua esperienza..."></textarea>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-paper-plane"></i> Invia Recensione
+                </button>
+            </form>
+        </div>
+
+        <!-- Reviews List -->
+        <div class="reviews-list">
+            <h2>Recensioni dei Clienti</h2>
+            {% if reviews %}
+                <div class="reviews-grid">
+                    {% for review in reviews %}
+                    <div class="review-card">
+                        <div class="review-header">
+                            <h3>{{ review.name }}</h3>
+                            <div class="stars">
+                                {% for i in range(5) %}
+                                    {% if i < review.rating %}
+                                        <i class="fas fa-star filled"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="review-comment">{{ review.comment }}</p>
+                        <div class="review-date">
+                            <i class="far fa-calendar-alt"></i>
+                            {{ review.created_at.strftime('%d/%m/%Y') }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-reviews">
+                    <i class="fas fa-star" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                    <h3>Nessuna recensione ancora</h3>
+                    <p>Sii il primo a lasciare una recensione!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Star rating functionality
+    const starInputs = document.querySelectorAll('.star-rating input');
+    const starLabels = document.querySelectorAll('.star-rating label');
+    
+    starInputs.forEach((input, index) => {
+        input.addEventListener('change', function() {
+            // Reset all stars
+            starLabels.forEach(label => {
+                label.querySelector('i').className = 'fas fa-star';
+            });
+            
+            // Fill stars up to selected rating
+            const rating = parseInt(this.value);
+            for (let i = 0; i < rating; i++) {
+                starLabels[i].querySelector('i').className = 'fas fa-star filled';
+            }
+        });
+        
+        // Hover effects
+        input.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.value);
+            starLabels.forEach((label, i) => {
+                if (i < rating) {
+                    label.querySelector('i').className = 'fas fa-star filled';
+                }
+            });
+        });
+        
+        input.addEventListener('mouseleave', function() {
+            const checkedInput = document.querySelector('.star-rating input:checked');
+            if (checkedInput) {
+                const rating = parseInt(checkedInput.value);
+                starLabels.forEach((label, i) => {
+                    if (i < rating) {
+                        label.querySelector('i').className = 'fas fa-star filled';
+                    } else {
+                        label.querySelector('i').className = 'fas fa-star';
+                    }
+                });
+            } else {
+                starLabels.forEach(label => {
+                    label.querySelector('i').className = 'fas fa-star';
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from models import db, User, Project, ContactMessage
+from models import db, User, Project, ContactMessage, Review
 import os
 from datetime import datetime
 from email_validator import validate_email, EmailNotValidError
@@ -119,6 +119,59 @@ def contact():
         return redirect(url_for('contact'))
     
     return render_template('contact.html')
+
+# Route per la pagina Recensioni
+@app.route('/reviews', methods=['GET', 'POST'])
+def reviews():
+    if request.method == 'POST':
+        # Gestione del form di recensione
+        name = request.form.get('name', '').strip()
+        rating = request.form.get('rating', '').strip()
+        comment = request.form.get('comment', '').strip()
+        
+        # Validazione dei campi obbligatori
+        if not name or not rating or not comment:
+            flash('Tutti i campi sono obbligatori!', 'error')
+            return render_template('reviews.html')
+        
+        # Validazione rating (1-5)
+        try:
+            rating = int(rating)
+            if rating < 1 or rating > 5:
+                flash('Il rating deve essere tra 1 e 5 stelle!', 'error')
+                return render_template('reviews.html')
+        except ValueError:
+            flash('Rating non valido!', 'error')
+            return render_template('reviews.html')
+        
+        # Salva la recensione nel database
+        review = Review(
+            name=name,
+            rating=rating,
+            comment=comment
+        )
+        
+        db.session.add(review)
+        db.session.commit()
+        
+        flash('Grazie per la tua recensione! Sarà visibile dopo l\'approvazione.', 'success')
+        return redirect(url_for('reviews'))
+    
+    # Ottieni recensioni approvate per la visualizzazione
+    try:
+        approved_reviews = Review.query.filter_by(approved=True).order_by(Review.created_at.desc()).all()
+        
+        # Calcola la media delle stelle
+        if approved_reviews:
+            total_rating = sum(review.rating for review in approved_reviews)
+            average_rating = round(total_rating / len(approved_reviews), 1)
+        else:
+            average_rating = 0
+        
+        return render_template('reviews.html', reviews=approved_reviews, average_rating=average_rating)
+    except Exception as e:
+        print(f"Errore nella pagina recensioni: {e}")
+        return render_template('reviews.html', reviews=[], average_rating=0)
 
 # Admin Routes
 @app.route('/admin/login', methods=['GET', 'POST'])
@@ -249,6 +302,43 @@ def admin_messages():
     
     messages = ContactMessage.query.order_by(ContactMessage.created_at.desc()).all()
     return render_template('admin/messages.html', messages=messages)
+
+# Admin Reviews Routes
+@app.route('/admin/reviews')
+@login_required
+def admin_reviews():
+    if not current_user.is_admin:
+        flash('Accesso non autorizzato!', 'error')
+        return redirect(url_for('index'))
+    
+    reviews = Review.query.order_by(Review.created_at.desc()).all()
+    return render_template('admin/reviews.html', reviews=reviews)
+
+@app.route('/admin/reviews/<int:review_id>/approve', methods=['POST'])
+@login_required
+def admin_approve_review(review_id):
+    if not current_user.is_admin:
+        flash('Accesso non autorizzato!', 'error')
+        return redirect(url_for('index'))
+    
+    review = Review.query.get_or_404(review_id)
+    review.approved = True
+    db.session.commit()
+    flash('Recensione approvata con successo!', 'success')
+    return redirect(url_for('admin_reviews'))
+
+@app.route('/admin/reviews/<int:review_id>/delete', methods=['POST'])
+@login_required
+def admin_delete_review(review_id):
+    if not current_user.is_admin:
+        flash('Accesso non autorizzato!', 'error')
+        return redirect(url_for('index'))
+    
+    review = Review.query.get_or_404(review_id)
+    db.session.delete(review)
+    db.session.commit()
+    flash('Recensione eliminata con successo!', 'success')
+    return redirect(url_for('admin_reviews'))
 
 @app.route('/admin/messages/<int:message_id>/read', methods=['POST'])
 @login_required

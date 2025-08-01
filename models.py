@@ -77,4 +77,23 @@ class ContactMessage(db.Model):
             'message': self.message,
             'read': self.read,
             'created_at': self.created_at.isoformat() if self.created_at else None
+        }
+
+class Review(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)  # 1-5 stelle
+    comment = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    approved = db.Column(db.Boolean, default=False)  # Solo recensioni approvate vengono mostrate
+    
+    def to_dict(self):
+        """Convert review to dictionary for JSON response"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'rating': self.rating,
+            'comment': self.comment,
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+            'approved': self.approved
         } 

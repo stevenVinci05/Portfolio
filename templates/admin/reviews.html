@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Gestione Recensioni - Admin{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Admin Header -->
+<div class="admin-header">
+    <div class="container">
+        <h1>Gestione Recensioni</h1>
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{{ url_for('admin_messages') }}" class="btn btn-outline">
+                <i class="fas fa-envelope"></i> Messaggi
+            </a>
+            <a href="{{ url_for('admin_reviews') }}" class="btn btn-primary">
+                <i class="fas fa-star"></i> Recensioni
+            </a>
+            <a href="{{ url_for('admin_logout') }}" class="btn btn-outline">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </nav>
+    </div>
+</div>
+
+<!-- Admin Content -->
+<div class="admin-dashboard">
+    <div class="container">
+        <div class="admin-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <!-- Reviews Container -->
+            <div class="reviews-container">
+                <div class="reviews-header">
+                    <h2>Recensioni ({{ reviews|length }} totali)</h2>
+                    <div class="reviews-stats">
+                        <span class="stat">
+                            <i class="fas fa-check-circle"></i>
+                            {{ reviews|selectattr('approved', 'equalto', true)|list|length }} approvate
+                        </span>
+                        <span class="stat">
+                            <i class="fas fa-clock"></i>
+                            {{ reviews|selectattr('approved', 'equalto', false)|list|length }} in attesa
+                        </span>
+                    </div>
+                </div>
+
+                {% if reviews %}
+                    <div class="reviews-table">
+                        {% for review in reviews %}
+                        <div class="review-item {% if not review.approved %}pending{% endif %}">
+                            <div class="review-info">
+                                <div class="review-header">
+                                    <h3>{{ review.name }}</h3>
+                                    <div class="stars">
+                                        {% for i in range(5) %}
+                                            {% if i < review.rating %}
+                                                <i class="fas fa-star filled"></i>
+                                            {% else %}
+                                                <i class="far fa-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="review-comment">{{ review.comment }}</p>
+                                <div class="review-meta">
+                                    <span class="review-date">
+                                        <i class="far fa-calendar-alt"></i>
+                                        {{ review.created_at.strftime('%d/%m/%Y %H:%M') }}
+                                    </span>
+                                    {% if review.approved %}
+                                        <span class="status approved">
+                                            <i class="fas fa-check-circle"></i> Approvata
+                                        </span>
+                                    {% else %}
+                                        <span class="status pending">
+                                            <i class="fas fa-clock"></i> In attesa
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="review-actions">
+                                {% if not review.approved %}
+                                    <form method="POST" action="{{ url_for('admin_approve_review', review_id=review.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('Approvare questa recensione?')">
+                                            <i class="fas fa-check"></i> Approva
+                                        </button>
+                                    </form>
+                                {% endif %}
+                                <form method="POST" action="{{ url_for('admin_delete_review', review_id=review.id) }}" style="display: inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Eliminare questa recensione?')">
+                                        <i class="fas fa-trash"></i> Elimina
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-reviews">
+                        <i class="fas fa-star" style="font-size: 4rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
+                        <h3>Nessuna recensione</h3>
+                        <p>Non ci sono ancora recensioni da gestire.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
