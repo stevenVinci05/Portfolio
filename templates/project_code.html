@@ -54,222 +54,54 @@
                         <p>Ecco alcuni file chiave del progetto per mostrare l'architettura e le funzionalità principali.</p>
                     </div>
                     
-                    <!-- Main Application File -->
-                    <div class="code-file">
-                        <div class="file-header">
-                            <span class="file-name">app.py</span>
-                            <span class="file-type">Python</span>
+                    {% if code_files %}
+                        {% for filename, file_data in code_files.items() %}
+                        <div class="code-file">
+                            <div class="file-header">
+                                <span class="file-name">{{ filename }}</span>
+                                <span class="file-type">{{ file_data.language|title }}</span>
+                            </div>
+                            <div class="code-content">
+                                <pre><code class="language-{{ file_data.language }}">{{ file_data.content }}</code></pre>
+                            </div>
                         </div>
-                        <div class="code-content">
-                            <pre><code class="language-python">from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
-from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from models import db, User, Project, ContactMessage, Review
-import os
-from datetime import datetime
-from email_validator import validate_email, EmailNotValidError
-
-app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here')
-
-# Configurazione Database
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///portfolio.db')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Inizializzazione Database e Login Manager
-db.init_app(app)
-login_manager = LoginManager()
-login_manager.init_app(app)
-login_manager.login_view = 'admin_login'
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(int(user_id))
-
-# Route principale - Homepage
-@app.route('/')
-def index():
-    featured_projects = Project.query.filter_by(featured=True).order_by(Project.created_at.desc()).limit(3).all()
-    return render_template('index.html', featured_projects=featured_projects)
-
-# Route per la pagina Progetti
-@app.route('/projects')
-def projects():
-    projects_list = Project.query.order_by(Project.created_at.desc()).all()
-    return render_template('projects.html', projects=projects_list)
-
-if __name__ == '__main__':
-    app.run(debug=True)</code></pre>
-                        </div>
-                    </div>
-
-                    <!-- Models File -->
-                    <div class="code-file">
-                        <div class="file-header">
-                            <span class="file-name">models.py</span>
-                            <span class="file-type">Python</span>
-                        </div>
-                        <div class="code-content">
-                            <pre><code class="language-python">from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
-from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
-
-db = SQLAlchemy()
-
-class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-class Project(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    image = db.Column(db.String(255), default='project-default.jpg')
-    github_repo = db.Column(db.String(255))
-    category = db.Column(db.String(50), default='web')
-    technologies = db.Column(db.Text)
-    featured = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def get_technologies_list(self):
-        if self.technologies:
-            return self.technologies.split(',')
-        return []
-
-    def set_technologies_list(self, tech_list):
-        self.technologies = ','.join(tech_list) if tech_list else ''</code></pre>
-                        </div>
-                    </div>
-
-                    <!-- Template Example -->
-                    <div class="code-file">
-                        <div class="file-header">
-                            <span class="file-name">templates/projects.html</span>
-                            <span class="file-type">HTML</span>
-                        </div>
-                        <div class="code-content">
-                            <pre><code class="language-html">{% raw %}{% extends "base.html" %}
-
-{% block title %}Progetti - Il Mio Portfolio{% endblock %}
-
-{% block content %}
-<!-- Projects Hero -->
-<section class="section" style="padding-top: 120px;">
-    <div class="container">
-        <div class="text-center">
-            <h1>I Miei Progetti</h1>
-            <p class="lead">
-                Una raccolta dei miei lavori più significativi.
-            </p>
-        </div>
-    </div>
-</section>
-
-<!-- Projects Grid -->
-<section class="section">
-    <div class="container">
-        <div class="project-grid">
-            {% for project in projects %}
-            <div class="card project-card" data-category="project.category">
-                <div class="project-content">
-                    <h3>project.title</h3>
-                    <p>project.description</p>
-                    <div class="project-tech">
-                        {% for tech in project.get_technologies_list() %}
-                        <span class="tech-tag">tech</span>
                         {% endfor %}
-                    </div>
-                    <div class="project-links">
-                        {% if project.github_repo %}
-                        <a href="project.github_repo" class="btn btn-outline" target="_blank">
-                            <i class="fab fa-github"></i> Repository
-                        </a>
-                        <a href="url_for('project_code', project_id=project.id)" class="btn btn-outline">
-                            <i class="fas fa-code"></i> Vedi Codice
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endblock %}{% endraw %}</code></pre>
+                    {% else %}
+                        <!-- Fallback se non ci sono file di codice -->
+                        <div class="code-file">
+                            <div class="file-header">
+                                <span class="file-name">README.md</span>
+                                <span class="file-type">Markdown</span>
+                            </div>
+                            <div class="code-content">
+                                <pre><code class="language-markdown"># {{ project.title }}
+
+{{ project.description }}
+
+## Repository
+
+Questo progetto è disponibile su GitHub: [{{ project.github_repo }}]({{ project.github_repo }})
+
+## Tecnologie Utilizzate
+
+{% for tech in project.get_technologies_list() %}
+- {{ tech }}
+{% endfor %}
+
+## Come Contribuire
+
+1. Fai un fork del repository
+2. Crea un branch per la tua feature
+3. Committa le tue modifiche
+4. Pusha al branch
+5. Apri una Pull Request
+
+## Licenza
+
+Questo progetto è sotto licenza MIT.</code></pre>
+                            </div>
                         </div>
-                    </div>
-
-                    <!-- CSS Example -->
-                    <div class="code-file">
-                        <div class="file-header">
-                            <span class="file-name">static/css/style.css</span>
-                            <span class="file-type">CSS</span>
-                        </div>
-                        <div class="code-content">
-                            <pre><code class="language-css">:root {
-    --primary-color: #007bff;
-    --secondary-color: #6c757d;
-    --success-color: #28a745;
-    --bg-dark: #f8f9fa;
-    --text-dark: #343a40;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    color: var(--text-dark);
-}
-
-.section {
-    padding: 4rem 0;
-}
-
-.project-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 2rem;
-}
-
-.project-card {
-    border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    overflow: hidden;
-}
-
-.project-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
-}
-
-.project-content {
-    padding: 1.5rem;
-}
-
-.tech-tag {
-    display: inline-block;
-    background: var(--primary-color);
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    margin: 0.25rem;
-}</code></pre>
-                        </div>
-                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

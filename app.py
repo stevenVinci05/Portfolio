@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from models import db, User, Project, ContactMessage, Review
 import os
+import requests
+import re
 from datetime import datetime
 from email_validator import validate_email, EmailNotValidError
 
@@ -36,6 +38,111 @@ def validate_email_address(email):
         return True, valid.email
     except EmailNotValidError as e:
         return False, str(e)
+
+def extract_github_info(github_url):
+    """
+    Estrae username e repository name da un URL GitHub
+    """
+    if not github_url:
+        return None, None
+    
+    # Pattern per diversi formati di URL GitHub
+    patterns = [
+        r'github\.com/([^/]+)/([^/]+)\.git$',
+        r'github\.com/([^/]+)/([^/]+)/?$',
+        r'github\.com/([^/]+)/([^/]+)'
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, github_url)
+        if match:
+            username = match.group(1)
+            repo_name = match.group(2)
+            # Rimuovi .git se presente
+            if repo_name.endswith('.git'):
+                repo_name = repo_name[:-4]
+            return username, repo_name
+    
+    return None, None
+
+def get_github_file_content(username, repo_name, file_path, branch='main'):
+    """
+    Recupera il contenuto di un file da GitHub usando l'API pubblica
+    """
+    try:
+        url = f"https://api.github.com/repos/{username}/{repo_name}/contents/{file_path}"
+        params = {'ref': branch}
+        
+        response = requests.get(url, params=params, timeout=10)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('type') == 'file':
+                import base64
+                content = base64.b64decode(data['content']).decode('utf-8')
+                return content
+        elif response.status_code == 404:
+            # Prova con 'master' se 'main' non funziona
+            if branch == 'main':
+                return get_github_file_content(username, repo_name, file_path, 'master')
+        
+        return None
+    except Exception as e:
+        print(f"Errore nel recupero del file {file_path}: {e}")
+        return None
+
+def get_project_code_files(project):
+    """
+    Recupera i file di codice principali dal repository del progetto
+    """
+    if not project.github_repo:
+        return {}
+    
+    username, repo_name = extract_github_info(project.github_repo)
+    if not username or not repo_name:
+        return {}
+    
+    # Lista dei file da cercare (in ordine di priorità)
+    file_patterns = [
+        # Python
+        'app.py', 'main.py', 'run.py', 'server.py',
+        'requirements.txt', 'setup.py', 'config.py',
+        # JavaScript/Node.js
+        'package.json', 'index.js', 'app.js', 'server.js',
+        # HTML/CSS
+        'index.html', 'style.css', 'styles.css',
+        # Altri
+        'README.md', 'Dockerfile', '.env.example'
+    ]
+    
+    code_files = {}
+    
+    for file_path in file_patterns:
+        content = get_github_file_content(username, repo_name, file_path)
+        if content:
+            # Determina il linguaggio basato sull'estensione
+            ext = file_path.split('.')[-1] if '.' in file_path else ''
+            language_map = {
+                'py': 'python',
+                'js': 'javascript',
+                'html': 'html',
+                'css': 'css',
+                'md': 'markdown',
+                'json': 'json',
+                'txt': 'text'
+            }
+            language = language_map.get(ext, 'text')
+            
+            code_files[file_path] = {
+                'content': content,
+                'language': language
+            }
+            
+            # Limita a 5 file per non sovraccaricare la pagina
+            if len(code_files) >= 5:
+                break
+    
+    return code_files
 
 # Route principale - Homepage
 @app.route('/')
@@ -126,7 +233,11 @@ def contact():
 @app.route('/project/<int:project_id>/code')
 def project_code(project_id):
     project = Project.query.get_or_404(project_id)
-    return render_template('project_code.html', project=project)
+    
+    # Recupera i file di codice dal repository GitHub
+    code_files = get_project_code_files(project)
+    
+    return render_template('project_code.html', project=project, code_files=code_files)
 
 # Route per la pagina Recensioni
 @app.route('/reviews', methods=['GET', 'POST'])
