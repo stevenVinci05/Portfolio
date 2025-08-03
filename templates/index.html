@@ -95,23 +95,21 @@
                 {% endif %}
                 <h3>{{ project.title }}</h3>
                 <p>{{ project.description }}</p>
-                {% if project.technologies_list %}
                 <div class="project-tech">
-                    {% for tech in project.technologies_list[:3] %}
+                    {% for tech in project.get_technologies_list()[:3] %}
                     <span class="tech-tag">{{ tech }}</span>
                     {% endfor %}
-                    {% if project.technologies_list|length > 3 %}
-                    <span class="tech-tag">+{{ project.technologies_list|length - 3 }} altre</span>
+                    {% if project.get_technologies_list()|length > 3 %}
+                    <span class="tech-tag">+{{ project.get_technologies_list()|length - 3 }} altre</span>
                     {% endif %}
                 </div>
-                {% endif %}
                 <div class="project-actions">
-                    {% if project.link %}
-                    <a href="{{ project.link }}" class="btn btn-outline" target="_blank">Vedi Progetto</a>
-                    {% endif %}
-                    {% if project.github %}
-                    <a href="{{ project.github }}" class="btn btn-outline" target="_blank">
-                        <i class="fab fa-github"></i> Codice
+                    {% if project.github_repo %}
+                    <a href="{{ project.github_repo }}" class="btn btn-outline" target="_blank">
+                        <i class="fab fa-github"></i> Repository
+                    </a>
+                    <a href="{{ url_for('project_code', project_id=project.id) }}" class="btn btn-outline">
+                        <i class="fas fa-code"></i> Vedi Codice
                     </a>
                     {% endif %}
                 </div>

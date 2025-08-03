@@ -46,14 +46,12 @@
                         {% endfor %}
                     </div>
                     <div class="project-links">
-                        {% if project.link %}
-                        <a href="{{ project.link }}" class="btn btn-outline" target="_blank">
-                            <i class="fas fa-external-link-alt"></i> Vedi Demo
+                        {% if project.github_repo %}
+                        <a href="{{ project.github_repo }}" class="btn btn-outline" target="_blank">
+                            <i class="fab fa-github"></i> Repository
                         </a>
-                        {% endif %}
-                        {% if project.github %}
-                        <a href="{{ project.github }}" class="btn btn-outline" target="_blank">
-                            <i class="fab fa-github"></i> Codice
+                        <a href="{{ url_for('project_code', project_id=project.id) }}" class="btn btn-outline">
+                            <i class="fas fa-code"></i> Vedi Codice
                         </a>
                         {% endif %}
                     </div>

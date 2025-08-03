@@ -120,6 +120,12 @@ def contact():
     
     return render_template('contact.html')
 
+# Route per visualizzare il codice di un progetto
+@app.route('/project/<int:project_id>/code')
+def project_code(project_id):
+    project = Project.query.get_or_404(project_id)
+    return render_template('project_code.html', project=project)
+
 # Route per la pagina Recensioni
 @app.route('/reviews', methods=['GET', 'POST'])
 def reviews():
@@ -227,8 +233,7 @@ def admin_new_project():
             title=title,
             description=description,
             image=request.form.get('image', 'project-default.jpg'),
-            link=request.form.get('link'),
-            github=request.form.get('github'),
+            github_repo=request.form.get('github_repo'),
             category=request.form.get('category', 'web'),
             featured=bool(request.form.get('featured'))
         )
@@ -260,8 +265,7 @@ def admin_edit_project(project_id):
         project.title = request.form.get('title')
         project.description = request.form.get('description')
         project.image = request.form.get('image')
-        project.link = request.form.get('link')
-        project.github = request.form.get('github')
+        project.github_repo = request.form.get('github_repo')
         project.category = request.form.get('category')
         project.featured = bool(request.form.get('featured'))
         # Gestione tecnologie con pulizia degli spazi

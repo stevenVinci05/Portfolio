@@ -24,8 +24,7 @@ class Project(db.Model):
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
     image = db.Column(db.String(255), default='project-default.jpg')
-    link = db.Column(db.String(255))
-    github = db.Column(db.String(255))
+    github_repo = db.Column(db.String(255))  # Repository GitHub
     category = db.Column(db.String(50), default='web')
     technologies = db.Column(db.Text)  # JSON string
     featured = db.Column(db.Boolean, default=False)
@@ -49,8 +48,7 @@ class Project(db.Model):
             'title': self.title,
             'description': self.description,
             'image': self.image,
-            'link': self.link,
-            'github': self.github,
+            'github_repo': self.github_repo,
             'category': self.category,
             'technologies': self.get_technologies_list(),
             'featured': self.featured,
