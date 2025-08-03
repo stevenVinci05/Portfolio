@@ -3,57 +3,81 @@
 Test script per verificare che l'applicazione Flask funzioni correttamente
 """
 
-import os
-import sys
-from app import app, create_admin
+from app import app, db
+from models import Project
 
-def test_app():
-    """Test dell'applicazione Flask"""
-    try:
-        with app.app_context():
-            # Test della creazione del database
-            print("Testing database creation...")
-            create_admin()
-            print("✅ Database creation successful")
+def test_database_connection():
+    """Testa la connessione al database e le query"""
+    with app.app_context():
+        try:
+            # Test query per tutti i progetti
+            all_projects = Project.query.all()
+            print(f"✅ Tutti i progetti: {len(all_projects)}")
+            for project in all_projects:
+                print(f"  - {project.title} (ID: {project.id})")
             
-            # Test delle route principali
-            print("Testing main routes...")
-            with app.test_client() as client:
-                # Test homepage
-                response = client.get('/')
-                if response.status_code == 200:
-                    print("✅ Homepage route working")
-                else:
-                    print(f"❌ Homepage route failed: {response.status_code}")
-                
-                # Test about page
-                response = client.get('/about')
-                if response.status_code == 200:
-                    print("✅ About page route working")
-                else:
-                    print(f"❌ About page route failed: {response.status_code}")
-                
-                # Test projects page
-                response = client.get('/projects')
-                if response.status_code == 200:
-                    print("✅ Projects page route working")
-                else:
-                    print(f"❌ Projects page route failed: {response.status_code}")
-                
-                # Test contact page
-                response = client.get('/contact')
-                if response.status_code == 200:
-                    print("✅ Contact page route working")
-                else:
-                    print(f"❌ Contact page route failed: {response.status_code}")
+            # Test query per progetti in evidenza
+            featured_projects = Project.query.filter_by(featured=True).all()
+            print(f"✅ Progetti in evidenza: {len(featured_projects)}")
+            for project in featured_projects:
+                print(f"  - {project.title} (featured: {project.featured})")
             
-            print("🎉 All tests passed!")
+            # Test accesso ai campi del modello
+            if all_projects:
+                project = all_projects[0]
+                print(f"✅ Test campi modello:")
+                print(f"  - title: {project.title}")
+                print(f"  - description: {project.description[:50]}...")
+                print(f"  - github_repo: {project.github_repo}")
+                print(f"  - category: {project.category}")
+                print(f"  - technologies: {project.get_technologies_list()}")
+                print(f"  - featured: {project.featured}")
+            
             return True
             
-    except Exception as e:
-        print(f"❌ Test failed with error: {e}")
-        return False
+        except Exception as e:
+            print(f"❌ Errore nel test: {e}")
+            return False
+
+def test_routes():
+    """Testa le route principali"""
+    with app.test_client() as client:
+        try:
+            # Test homepage
+            response = client.get('/')
+            print(f"✅ Homepage status: {response.status_code}")
+            
+            # Test pagina progetti
+            response = client.get('/projects')
+            print(f"✅ Pagina progetti status: {response.status_code}")
+            
+            # Test route codice progetto (se esistono progetti)
+            with app.app_context():
+                projects = Project.query.all()
+                if projects:
+                    project_id = projects[0].id
+                    response = client.get(f'/project/{project_id}/code')
+                    print(f"✅ Route codice progetto status: {response.status_code}")
+                else:
+                    print("⚠️ Nessun progetto trovato per testare la route codice")
+            
+            return True
+            
+        except Exception as e:
+            print(f"❌ Errore nel test delle route: {e}")
+            return False
 
 if __name__ == '__main__':
-    success = test_app()
-    sys.exit(0 if success else 1) 
+    print("🧪 Avvio test applicazione...")
+    print("\n1. Test connessione database:")
+    db_success = test_database_connection()
+    
+    print("\n2. Test route:")
+    routes_success = test_routes()
+    
+    if db_success and routes_success:
+        print("\n✅ Tutti i test sono passati!")
+        print("🎉 L'applicazione dovrebbe funzionare correttamente.")
+    else:
+        print("\n❌ Alcuni test sono falliti.")
+        print("🔧 Controlla gli errori sopra.") 

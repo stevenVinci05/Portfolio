@@ -42,7 +42,8 @@ def validate_email_address(email):
 def index():
     try:
         # Verifica se il database esiste
-        db.engine.execute('SELECT 1')
+        with db.engine.connect() as conn:
+            conn.execute(db.text('SELECT 1'))
         
         # Ottieni i progetti in evidenza dal database
         featured_projects = Project.query.filter_by(featured=True).order_by(Project.created_at.desc()).limit(3).all()
@@ -68,7 +69,8 @@ def about():
 def projects():
     try:
         # Verifica se il database esiste
-        db.engine.execute('SELECT 1')
+        with db.engine.connect() as conn:
+            conn.execute(db.text('SELECT 1'))
         
         projects_list = Project.query.order_by(Project.created_at.desc()).all()
         return render_template('projects.html', projects=projects_list)
