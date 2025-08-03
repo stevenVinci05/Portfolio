@@ -159,7 +159,7 @@ class Project(db.Model):
                             <span class="file-type">HTML</span>
                         </div>
                         <div class="code-content">
-                            <pre><code class="language-html">{% extends "base.html" %}
+                            <pre><code class="language-html">{% raw %}{% extends "base.html" %}
 
 {% block title %}Progetti - Il Mio Portfolio{% endblock %}
 
@@ -206,7 +206,7 @@ class Project(db.Model):
         </div>
     </div>
 </section>
-{% endblock %}</code></pre>
+{% endblock %}{% endraw %}</code></pre>
                         </div>
                     </div>
 
